@@ -48,7 +48,7 @@ var gui;
 //     title: "STC Timeline Generator",
 //     theme: "yorha",
 // };
-function setDefaults() {
+function setDefaults(notFirst) {
     backgroundColor = "#101728";
     primaryColor = "#0ECC7C";
     secondaryColor = "#ffffff";
@@ -90,6 +90,27 @@ function setDefaults() {
     spaceSizeMax = 30;
     spaceSizeStep = 0.1;
     spaceSize = 6.9;
+    if (notFirst) {
+        // No way to set values programmatically in p5.gui
+        // so instead directly using quicksettings.js setValuesFromJSON()
+        // method.
+        // Since manually setting values, we should redraw the canvas.
+        gui.prototype.setValuesFromJSON({
+            backgroundColor,
+            primaryColor,
+            secondaryColor,
+            lineStartGap,
+            lineEndGap,
+            circleX,
+            circleRadius,
+            dottedCircleOffsetRadius,
+            bubbleHeight,
+            bubbleRadius,
+            dashSize,
+            spaceSize,
+        });
+        draw();
+    }
 }
 function preload() {
     backgroundImage = loadImage(
@@ -103,15 +124,6 @@ function setup() {
     HEIGHT = 600;
 
     setDefaults();
-
-    canvas = createCanvas(WIDTH, HEIGHT);
-    document.querySelector("#save-button").addEventListener("click", () => {
-        saveCanvas();
-    });
-    document.querySelector("#reset-button").addEventListener("click", () => {
-        setDefaults();
-    });
-
     gui = createGui("STC Timeline Generator");
     gui.addGlobals(
         "backgroundColor",
@@ -127,14 +139,27 @@ function setup() {
         "dashSize",
         "spaceSize"
     );
+    console.log(gui.prototype.getValuesAsJSON());
+
+    canvas = createCanvas(WIDTH, HEIGHT);
+    document.querySelector("#save-button").addEventListener("click", () => {
+        saveCanvas();
+    });
+    document.querySelector("#reset-button").addEventListener("click", () => {
+        setDefaults(true);
+    });
+    setDefaults(true);
+
     noLoop();
 }
 function draw() {
     background(backgroundColor);
     // background(backgroundImage);
+
     strokeWeight(2);
     stroke(primaryColor);
     fill(primaryColor);
+
     // Main line
     line(lineStartGap, HEIGHT / 2, WIDTH - lineEndGap, HEIGHT / 2);
 
