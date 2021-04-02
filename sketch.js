@@ -2,6 +2,9 @@ let backgroundImage;
 let WIDTH = 796;
 let HEIGHT = 796;
 let canvas;
+let sampleTextFont;
+
+var showBackgroundImage;
 
 var backgroundColor;
 var primaryColor;
@@ -43,13 +46,29 @@ var spaceSize;
 var spaceSizeMin;
 var spaceSizeMax;
 
+var text1;
+var text2;
+var sampleTextSize;
+
+var textBoxWidth;
+var textBoxWidthMin;
+var textBoxWidthMax;
+
+var startColOffset;
+var startColOffsetMin;
+var startColOffset;
+
+var lineGap;
+
 var gui;
 // const guiOpts = {
 //     title: "STC Timeline Generator",
 //     theme: "yorha",
 // };
 function setDefaults(notFirst) {
-    backgroundColor = "#101728";
+    showBackgroundImage = false;
+
+    backgroundColor = "#17213A";
     primaryColor = "#0ECC7C";
     secondaryColor = "#ffffff";
 
@@ -69,7 +88,7 @@ function setDefaults(notFirst) {
     circleRadiusMax = 30;
     circleRadius = 13;
 
-    dottedCircleOffsetRadius = 14;
+    dottedCircleOffsetRadius = 16;
     dottedCircleOffsetRadiusMin = 0;
     dottedCircleOffsetRadiusMax = 30;
 
@@ -90,12 +109,30 @@ function setDefaults(notFirst) {
     spaceSizeMax = 30;
     spaceSizeStep = 0.1;
     spaceSize = 6.9;
+
+    text1 =
+        "Razer has planned to release a cutting-edge gaming chair built with carbon fibre and RGB lighting, Project Brooklyn Chair, in 2022-23.";
+    text2 =
+        "At CES 2021, Razer unveiled a conceptual design for a transparent plastic face mask called Project Hazel to improve social interaction during this pandemic.";
+    sampleTextSize = 24;
+
+    textBoxWidth = 410;
+    textBoxWidthMin = 300;
+    textBoxWidthMax = 600;
+
+    startColOffset = 17;
+    startColOffsetMin = -30;
+    startColOffsetMax = 30;
+
+    lineGap = 25;
+
     if (notFirst) {
         // No way to set values programmatically in p5.gui
         // so instead directly using quicksettings.js setValuesFromJSON()
         // method.
         // Since manually setting values, we should redraw the canvas.
         gui.prototype.setValuesFromJSON({
+            showBackgroundImage,
             backgroundColor,
             primaryColor,
             secondaryColor,
@@ -108,6 +145,13 @@ function setDefaults(notFirst) {
             bubbleRadius,
             dashSize,
             spaceSize,
+            text1,
+            text2,
+            lineGap,
+            sampleTextSize,
+            textBoxWidth,
+            startColOffset,
+            lineGap,
         });
         draw();
     }
@@ -116,6 +160,7 @@ function preload() {
     backgroundImage = loadImage(
         "https://instagram.fcok4-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/165518340_395676648168558_2007177254094814758_n.jpg?tp=1&_nc_ht=instagram.fcok4-1.fna.fbcdn.net&_nc_cat=106&_nc_ohc=JWz0akwh-ZoAX_8SZFk&ccb=7-4&oh=6dcaa45579cf923e28c6103e0e3cf0f3&oe=6089F699&_nc_sid=4f375e"
     );
+    sampleTextFont = loadFont("./assets/MankSans-Medium.ttf");
 }
 function setup() {
     // WIDTH = backgroundImage.width;
@@ -126,6 +171,7 @@ function setup() {
     setDefaults();
     gui = createGui("STC Timeline Generator");
     gui.addGlobals(
+        "showBackgroundImage",
         "backgroundColor",
         "primaryColor",
         "secondaryColor",
@@ -137,9 +183,14 @@ function setup() {
         "bubbleHeight",
         "bubbleRadius",
         "dashSize",
-        "spaceSize"
+        "spaceSize",
+        "text1",
+        "text2",
+        "sampleTextSize",
+        "startColOffset",
+        "textBoxWidth",
+        "lineGap"
     );
-    console.log(gui.prototype.getValuesAsJSON());
 
     canvas = createCanvas(WIDTH, HEIGHT);
     document.querySelector("#save-button").addEventListener("click", () => {
@@ -152,9 +203,32 @@ function setup() {
 
     noLoop();
 }
+
+function textHeight(text, maxWidth) {
+    var words = text.split(" ");
+    var line = "";
+    var h = textLeading();
+
+    for (let i = 0; i < words.length; i++) {
+        var testLine = line + words[i] + " ";
+        var testWidth = drawingContext.measureText(testLine).width;
+
+        if (testWidth > maxWidth && i > 0) {
+            line = words[i] + " ";
+            h += textLeading();
+        } else {
+            line = testLine;
+        }
+    }
+
+    return h;
+}
 function draw() {
-    background(backgroundColor);
-    // background(backgroundImage);
+    if (showBackgroundImage) {
+        background(backgroundImage);
+    } else {
+        background(backgroundColor);
+    }
 
     strokeWeight(2);
     stroke(primaryColor);
@@ -186,7 +260,6 @@ function draw() {
         circleRadius + dottedCircleOffsetRadius
     );
     pop();
-
     strokeWeight(0.35);
 
     // lines connecting middle line to bubbles
@@ -197,4 +270,39 @@ function draw() {
         WIDTH - circleX,
         HEIGHT / 2 + bubbleHeight
     );
+
+    // text
+    push();
+    strokeWeight(0.1);
+    fill(secondaryColor);
+    stroke(secondaryColor);
+    textSize(sampleTextSize);
+    textFont(sampleTextFont);
+    textAlign(LEFT, CENTER);
+    let textBoxHeight = textHeight(text1, textBoxWidth);
+    textLeading(lineGap);
+    text(
+        text1,
+        circleX + bubbleRadius / 2 + startColOffset,
+        HEIGHT / 2 -
+            bubbleHeight -
+            bubbleRadius / 2 -
+            textBoxHeight / 2 +
+            textLeading() / 2,
+        textBoxWidth
+    );
+    textAlign(RIGHT, CENTER);
+    textBoxHeight = textHeight(text2, textBoxWidth);
+    // textLeading(0);
+    text(
+        text2,
+        WIDTH - circleX - bubbleRadius / 2 - textBoxWidth - startColOffset,
+        HEIGHT / 2 +
+            bubbleHeight +
+            bubbleRadius / 2 -
+            textBoxHeight / 2 +
+            textLeading() / 4,
+        textBoxWidth
+    );
+    pop();
 }
