@@ -1,8 +1,14 @@
 let backgroundImage;
+let futureImage;
+let pastImage;
+let presentImage;
+let stcLogo;
+
 let WIDTH = 796;
 let HEIGHT = 796;
 let canvas;
-let sampleTextFont;
+let primaryTextFont;
+let secondaryTextFont;
 
 var showBackgroundImage;
 
@@ -48,7 +54,19 @@ var spaceSizeMax;
 
 var text1;
 var text2;
-var sampleTextSize;
+var primaryTextSize;
+
+var secondaryTextSize;
+var secondaryTextSizeMin;
+var secondaryTextSizeMax;
+var secondaryTextSizeStep;
+
+var secondaryTextX;
+var secondaryTextXMin;
+var secondaryTextXMax;
+var secondaryTextY;
+var secondaryTextYMin;
+var secondaryTextYMax;
 
 var textBoxWidth;
 var textBoxWidthMin;
@@ -57,8 +75,22 @@ var textBoxWidthMax;
 var startColOffset;
 var startColOffsetMin;
 var startColOffset;
+var iconXOffset;
+var iconXOffsetMin;
+var iconXOffsetMax;
 
-var lineGap;
+var iconYOffset;
+var iconYOffsetMin;
+var iconYOffsetMax;
+
+var stcIconYOffset;
+var stcIconYOffsetMin;
+var stcIconYOffsetMax;
+
+var scaleFactor;
+var scaleFactorMin;
+var scaleFactorMax;
+var scaleFactorStep;
 
 var gui;
 // const guiOpts = {
@@ -114,9 +146,9 @@ function setDefaults(notFirst) {
         "Razer has planned to release a cutting-edge gaming chair built with carbon fibre and RGB lighting, Project Brooklyn Chair, in 2022-23.";
     text2 =
         "At CES 2021, Razer unveiled a conceptual design for a transparent plastic face mask called Project Hazel to improve social interaction during this pandemic.";
-    sampleTextSize = 24;
+    primaryTextSize = 21;
 
-    textBoxWidth = 410;
+    textBoxWidth = 438;
     textBoxWidthMin = 300;
     textBoxWidthMax = 600;
 
@@ -124,7 +156,35 @@ function setDefaults(notFirst) {
     startColOffsetMin = -30;
     startColOffsetMax = 30;
 
-    lineGap = 25;
+    secondaryTextSize = 31;
+    secondaryTextSizeMin = 20;
+    secondaryTextSizeMax = 40;
+    secondaryTextSizeStep = 0.1;
+
+    secondaryTextX = 24;
+    secondaryTextXMin = 0;
+    secondaryTextXMax = 100;
+
+    secondaryTextY = 54;
+    secondaryTextYMin = 0;
+    secondaryTextYMax = 100;
+
+    iconXOffset = 12;
+    iconXOffsetMin = 0;
+    iconXOffsetMax = 50;
+
+    iconYOffset = 6;
+    iconYOffsetMin = 0;
+    iconYOffsetMax = 50;
+
+    stcIconYOffset = 15;
+    stcIconYOffsetMin = 0;
+    stcIconYOffsetMax = 50;
+
+    scaleFactor = 0.55;
+    scaleFactorMin = 0.1;
+    scaleFactorMax = 5;
+    scaleFactorStep = 0.01;
 
     if (notFirst) {
         // No way to set values programmatically in p5.gui
@@ -147,20 +207,30 @@ function setDefaults(notFirst) {
             spaceSize,
             text1,
             text2,
-            lineGap,
-            sampleTextSize,
+            primaryTextSize,
+            secondaryTextSize,
+            secondaryTextX,
+            secondaryTextY,
             textBoxWidth,
             startColOffset,
-            lineGap,
+            iconXOffset,
+            iconYOffset,
+            stcIconYOffset,
+            scaleFactor,
         });
         draw();
     }
 }
 function preload() {
-    backgroundImage = loadImage(
-        "https://instagram.fcok4-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/165518340_395676648168558_2007177254094814758_n.jpg?tp=1&_nc_ht=instagram.fcok4-1.fna.fbcdn.net&_nc_cat=106&_nc_ohc=JWz0akwh-ZoAX_8SZFk&ccb=7-4&oh=6dcaa45579cf923e28c6103e0e3cf0f3&oe=6089F699&_nc_sid=4f375e"
-    );
-    sampleTextFont = loadFont("./assets/MankSans-Medium.ttf");
+    primaryTextFont = loadFont("assets/fonts/Montserrat/Medium.ttf");
+    secondaryTextFont = loadFont("assets/fonts/Cera Pro/Bold.otf");
+
+    brandLogo = loadImage("./assets/razer.svg");
+    stcLogo = loadImage("./assets/stc.svg");
+    futureImage = loadImage("./assets/future.svg");
+    // presentImage = loadImage("./assets/present.svg");
+    pastImage = loadImage("./assets/past.svg");
+    backgroundImage = loadImage("assets/sample.jpg");
 }
 function setup() {
     // WIDTH = backgroundImage.width;
@@ -175,6 +245,8 @@ function setup() {
         "backgroundColor",
         "primaryColor",
         "secondaryColor",
+        "text1",
+        "text2",
         "lineStartGap",
         "lineEndGap",
         "circleX",
@@ -184,12 +256,16 @@ function setup() {
         "bubbleRadius",
         "dashSize",
         "spaceSize",
-        "text1",
-        "text2",
-        "sampleTextSize",
+        "primaryTextSize",
+        "secondaryTextSize",
+        "secondaryTextX",
+        "secondaryTextY",
         "startColOffset",
         "textBoxWidth",
-        "lineGap"
+        "iconXOffset",
+        "iconYOffset",
+        "stcIconYOffset",
+        "scaleFactor"
     );
 
     canvas = createCanvas(WIDTH, HEIGHT);
@@ -229,6 +305,41 @@ function draw() {
     } else {
         background(backgroundColor);
     }
+
+    // watermark
+    image(
+        brandLogo,
+        WIDTH / 2 - brandLogo.width / 2,
+        HEIGHT / 2 - brandLogo.height / 2
+    );
+
+    // STC logo
+    image(
+        stcLogo,
+        WIDTH - secondaryTextX - stcLogo.width * scaleFactor,
+        secondaryTextY - stcLogo.height * scaleFactor + stcIconYOffset,
+        216.26 * scaleFactor,
+        86 * scaleFactor
+    );
+
+    // past/present/future
+    push();
+    // strokeWeight(0.1);
+    // document.querySelector("canvas").style.letterSpacing = "300px";
+    fill(primaryColor);
+    stroke(primaryColor);
+    textFont(secondaryTextFont);
+    textSize(secondaryTextSize);
+    text("FUTURE", secondaryTextX, secondaryTextY);
+    image(
+        futureImage,
+        secondaryTextX + textWidth("FUTURE") + iconXOffset,
+        secondaryTextY - secondaryTextSize + iconYOffset,
+        88 * scaleFactor,
+        53 * scaleFactor
+    );
+    noFill();
+    pop();
 
     strokeWeight(2);
     stroke(primaryColor);
@@ -276,19 +387,18 @@ function draw() {
     strokeWeight(0.1);
     fill(secondaryColor);
     stroke(secondaryColor);
-    textSize(sampleTextSize);
-    textFont(sampleTextFont);
+    textSize(primaryTextSize);
+    textFont(primaryTextFont);
     textAlign(LEFT, CENTER);
     let textBoxHeight = textHeight(text1, textBoxWidth);
-    textLeading(lineGap);
     text(
         text1,
         circleX + bubbleRadius / 2 + startColOffset,
         HEIGHT / 2 -
             bubbleHeight -
             bubbleRadius / 2 -
-            textBoxHeight / 2 +
-            textLeading() / 2,
+            textBoxHeight / 2 -
+            textLeading() / 4,
         textBoxWidth
     );
     textAlign(RIGHT, CENTER);
@@ -300,7 +410,7 @@ function draw() {
         HEIGHT / 2 +
             bubbleHeight +
             bubbleRadius / 2 -
-            textBoxHeight / 2 +
+            textBoxHeight / 2 -
             textLeading() / 4,
         textBoxWidth
     );
