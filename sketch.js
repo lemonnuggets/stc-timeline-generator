@@ -1,3 +1,4 @@
+// TODO: Add files as inputs
 let backgroundImage;
 let futureImage;
 let pastImage;
@@ -127,6 +128,7 @@ var typeIconScaleFactorMax;
 var typeIconScaleFactorStep;
 var gui;
 var gui2;
+
 function writeColor(image, x, y, red, green, blue, alpha) {
     let index = (x + y * image.width) * 4;
     image.pixels[index] = red;
@@ -157,6 +159,280 @@ function colorImage(image, hex, alpha = 255) {
     }
     image.updatePixels();
 }
+
+function textHeight(text, maxWidth) {
+    var words = text.split(" ");
+    var line = "";
+    var h = textLeading();
+
+    for (let i = 0; i < words.length; i++) {
+        var testLine = line + words[i] + " ";
+        var testWidth = drawingContext.measureText(testLine).width;
+
+        if (testWidth > maxWidth && i > 0) {
+            line = words[i] + " ";
+            h += textLeading();
+        } else {
+            line = testLine;
+        }
+    }
+
+    return h;
+}
+
+function linkToInput(variable, inputID) {
+    const input = document.querySelector(inputID);
+    input.onchange = () => {};
+}
+
+function preload() {
+    primaryTextFont = loadFont("assets/fonts/Montserrat/Medium.ttf");
+    secondaryTextFont = loadFont("assets/fonts/Cera Pro/Bold.otf");
+
+    brandLogo = loadImage("./assets/razer.svg");
+    stcLogo = loadImage("./assets/stc.svg");
+    futureImage = loadImage("./assets/future.svg");
+    // presentImage = loadImage("./assets/present.svg");
+    pastImage = loadImage("./assets/past.svg");
+    backgroundImage = loadImage("assets/sample.jpg");
+
+    bubble1Image = loadImage("assets/bubble1.svg");
+    bubble2Image = loadImage("assets/bubble2.svg");
+}
+
+function setup() {
+    // WIDTH = backgroundImage.width;
+    // HEIGHT = backgroundImage.height;
+    WIDTH = 600;
+    HEIGHT = 600;
+    setDefaults();
+    gui = createGui("STC Timeline Generator");
+    gui.addGlobals(
+        "type",
+        "showBackgroundImage",
+        "backgroundColor",
+        "primaryColor",
+        "secondaryColor",
+        "brandLogoAlpha",
+        "text1",
+        "text2"
+    );
+    gui2 = createGui("Hopefully nothing to be touched");
+    gui2.addGlobals(
+        "typeIconScaleFactor",
+        "brandLogoScaleFactor",
+        "bubble2ScaleFactor",
+        "bubble1ScaleFactor",
+        "stcScaleFactor",
+        "lineStartGap",
+        "lineEndGap",
+        "circleX",
+        "circleRadius",
+        "dottedCircleOffsetRadius",
+        "bubbleHeight",
+        "bubbleRadius",
+        "dashSize",
+        "spaceSize",
+        "primaryTextSize",
+        "secondaryTextSize",
+        "topMarginX",
+        "topMarginY",
+        "bubbleTextGap",
+        "textBoxWidth",
+        "iconXOffset",
+        "iconYOffset",
+        "stcIconYOffset",
+        "scaleFactor"
+    );
+    gui2.setPosition(windowWidth - 250, 20);
+
+    canvas = createCanvas(WIDTH, HEIGHT);
+    document.querySelector("#save-button").addEventListener("click", () => {
+        saveCanvas();
+    });
+    document.querySelector("#reset-button").addEventListener("click", () => {
+        setDefaults((notFirst = true));
+    });
+    setDefaults((notFirst = true));
+
+    noLoop();
+}
+
+function draw() {
+    if (showBackgroundImage) {
+        background(backgroundImage);
+    } else {
+        background(backgroundColor);
+    }
+    let typeText, typeImage;
+    switch (type) {
+        case "FUTURE":
+            typeText = "FUTURE";
+            typeImage = futureImage;
+            if (currentType != typeText) {
+                setDefaults((notFirst = true), (toBeRedrawn = false));
+                currentType = typeText;
+            }
+            break;
+        case "PAST":
+            typeText = "PAST";
+            typeImage = pastImage;
+            if (currentType != typeText) {
+                setDefaults((notFirst = true), (toBeRedrawn = false));
+                currentType = typeText;
+            }
+            break;
+    }
+    push();
+
+    colorImage(bubble1Image, secondaryColor);
+    colorImage(bubble2Image, secondaryColor);
+    colorImage(stcLogo, secondaryColor);
+
+    colorImage(typeImage, primaryColor);
+    colorImage(brandLogo, primaryColor, brandLogoAlpha);
+
+    imageMode(CENTER);
+
+    // watermark
+    image(
+        brandLogo,
+        WIDTH / 2,
+        HEIGHT / 2,
+        brandLogo.width * brandLogoScaleFactor,
+        brandLogo.height * brandLogoScaleFactor
+    );
+
+    // images in bubbles
+    image(
+        bubble1Image,
+        circleX,
+        HEIGHT / 2 - bubbleHeight - bubbleRadius / 2,
+        bubble1Image.width * bubble1ScaleFactor,
+        bubble1Image.height * bubble1ScaleFactor
+    );
+
+    image(
+        bubble2Image,
+        WIDTH - circleX,
+        HEIGHT / 2 + bubbleHeight + bubbleRadius / 2,
+        bubble2Image.width * bubble2ScaleFactor,
+        bubble2Image.height * bubble2ScaleFactor
+    );
+    pop();
+    // STC logo
+    image(
+        stcLogo,
+        WIDTH - topMarginX - stcLogo.width * stcScaleFactor,
+        topMarginY - stcLogo.height * stcScaleFactor + stcIconYOffset,
+        stcLogo.width * stcScaleFactor,
+        stcLogo.height * stcScaleFactor
+    );
+
+    // past/present/future
+    push();
+    fill(primaryColor);
+    stroke(primaryColor);
+    textFont(secondaryTextFont);
+    textSize(secondaryTextSize);
+    if (type !== "PAST") {
+        text(typeText, topMarginX, topMarginY);
+        image(
+            typeImage,
+            topMarginX + textWidth(typeText) + iconXOffset,
+            topMarginY - secondaryTextSize + iconYOffset,
+            88 * typeIconScaleFactor,
+            53 * typeIconScaleFactor
+        );
+        noFill();
+    } else {
+        image(
+            typeImage,
+            topMarginX,
+            topMarginY - secondaryTextSize + iconYOffset,
+            88 * typeIconScaleFactor,
+            53 * typeIconScaleFactor
+        );
+        text(typeText, typeImage.width, topMarginY);
+    }
+    pop();
+
+    strokeWeight(2);
+    stroke(primaryColor);
+    fill(primaryColor);
+
+    // Main line
+    line(lineStartGap, HEIGHT / 2, WIDTH - lineEndGap, HEIGHT / 2);
+
+    //Points marked on the line
+    circle(circleX, HEIGHT / 2, circleRadius);
+    circle(WIDTH - circleX, HEIGHT / 2, circleRadius);
+    noFill();
+
+    // Bubble circles
+    circle(circleX, HEIGHT / 2 - bubbleHeight - bubbleRadius / 2, bubbleRadius);
+    circle(
+        WIDTH - circleX,
+        HEIGHT / 2 + bubbleHeight + bubbleRadius / 2,
+        bubbleRadius
+    );
+
+    // Dotted Circles around points on the line
+    push();
+    drawingContext.setLineDash([dashSize, spaceSize]);
+    circle(circleX, HEIGHT / 2, circleRadius + dottedCircleOffsetRadius);
+    circle(
+        WIDTH - circleX,
+        HEIGHT / 2,
+        circleRadius + dottedCircleOffsetRadius
+    );
+    pop();
+    strokeWeight(0.35);
+
+    // lines connecting middle line to bubbles
+    line(circleX, HEIGHT / 2, circleX, HEIGHT / 2 - bubbleHeight);
+    line(
+        WIDTH - circleX,
+        HEIGHT / 2,
+        WIDTH - circleX,
+        HEIGHT / 2 + bubbleHeight
+    );
+
+    // text
+    push();
+    strokeWeight(0.1);
+    fill(secondaryColor);
+    stroke(secondaryColor);
+    textSize(primaryTextSize);
+    textFont(primaryTextFont);
+    textAlign(LEFT, CENTER);
+    let textBoxHeight = textHeight(text1, textBoxWidth);
+    text(
+        text1,
+        circleX + bubbleRadius / 2 + bubbleTextGap,
+        HEIGHT / 2 -
+            bubbleHeight -
+            bubbleRadius / 2 -
+            textBoxHeight / 2 -
+            textLeading() / 4,
+        textBoxWidth
+    );
+    textAlign(RIGHT, CENTER);
+    textBoxHeight = textHeight(text2, textBoxWidth);
+    // textLeading(0);
+    text(
+        text2,
+        WIDTH - circleX - bubbleRadius / 2 - textBoxWidth - bubbleTextGap,
+        HEIGHT / 2 +
+            bubbleHeight +
+            bubbleRadius / 2 -
+            textBoxHeight / 2 -
+            textLeading() / 4,
+        textBoxWidth
+    );
+    pop();
+}
+
 function setDefaults(notFirst = false, toBeRedrawn = true) {
     if (!notFirst) {
         backgroundColor = "#17213A";
@@ -338,269 +614,4 @@ function setDefaults(notFirst = false, toBeRedrawn = true) {
             draw();
         }
     }
-}
-function preload() {
-    primaryTextFont = loadFont("assets/fonts/Montserrat/Medium.ttf");
-    secondaryTextFont = loadFont("assets/fonts/Cera Pro/Bold.otf");
-
-    brandLogo = loadImage("./assets/razer.svg");
-    stcLogo = loadImage("./assets/stc.svg");
-    futureImage = loadImage("./assets/future.svg");
-    // presentImage = loadImage("./assets/present.svg");
-    pastImage = loadImage("./assets/past.svg");
-    backgroundImage = loadImage("assets/sample.jpg");
-
-    bubble1Image = loadImage("assets/bubble1.svg");
-    bubble2Image = loadImage("assets/bubble2.svg");
-}
-function setup() {
-    // WIDTH = backgroundImage.width;
-    // HEIGHT = backgroundImage.height;
-    WIDTH = 600;
-    HEIGHT = 600;
-    setDefaults();
-    gui = createGui("STC Timeline Generator");
-    gui.addGlobals(
-        "type",
-        "showBackgroundImage",
-        "backgroundColor",
-        "primaryColor",
-        "secondaryColor",
-        "brandLogoAlpha",
-        "text1",
-        "text2"
-    );
-    gui2 = createGui("Hopefully nothing to be touched");
-    gui2.addGlobals(
-        "typeIconScaleFactor",
-        "brandLogoScaleFactor",
-        "bubble2ScaleFactor",
-        "bubble1ScaleFactor",
-        "stcScaleFactor",
-        "lineStartGap",
-        "lineEndGap",
-        "circleX",
-        "circleRadius",
-        "dottedCircleOffsetRadius",
-        "bubbleHeight",
-        "bubbleRadius",
-        "dashSize",
-        "spaceSize",
-        "primaryTextSize",
-        "secondaryTextSize",
-        "topMarginX",
-        "topMarginY",
-        "bubbleTextGap",
-        "textBoxWidth",
-        "iconXOffset",
-        "iconYOffset",
-        "stcIconYOffset",
-        "scaleFactor"
-    );
-    gui2.setPosition(windowWidth - 250, 20);
-
-    canvas = createCanvas(WIDTH, HEIGHT);
-    document.querySelector("#save-button").addEventListener("click", () => {
-        saveCanvas();
-    });
-    document.querySelector("#reset-button").addEventListener("click", () => {
-        setDefaults((notFirst = true));
-    });
-    setDefaults((notFirst = true));
-
-    noLoop();
-}
-
-function textHeight(text, maxWidth) {
-    var words = text.split(" ");
-    var line = "";
-    var h = textLeading();
-
-    for (let i = 0; i < words.length; i++) {
-        var testLine = line + words[i] + " ";
-        var testWidth = drawingContext.measureText(testLine).width;
-
-        if (testWidth > maxWidth && i > 0) {
-            line = words[i] + " ";
-            h += textLeading();
-        } else {
-            line = testLine;
-        }
-    }
-
-    return h;
-}
-function draw() {
-    if (showBackgroundImage) {
-        background(backgroundImage);
-    } else {
-        background(backgroundColor);
-    }
-    let typeText, typeImage;
-    switch (type) {
-        case "FUTURE":
-            typeText = "FUTURE";
-            typeImage = futureImage;
-            if (currentType != typeText) {
-                setDefaults((notFirst = true), (toBeRedrawn = false));
-                currentType = typeText;
-            }
-            break;
-        case "PAST":
-            typeText = "PAST";
-            typeImage = pastImage;
-            if (currentType != typeText) {
-                setDefaults((notFirst = true), (toBeRedrawn = false));
-                currentType = typeText;
-            }
-            break;
-    }
-    push();
-
-    colorImage(bubble1Image, secondaryColor);
-    colorImage(bubble2Image, secondaryColor);
-    colorImage(stcLogo, secondaryColor);
-
-    colorImage(typeImage, primaryColor);
-    colorImage(brandLogo, primaryColor, brandLogoAlpha);
-
-    imageMode(CENTER);
-
-    // watermark
-    image(
-        brandLogo,
-        WIDTH / 2,
-        HEIGHT / 2,
-        brandLogo.width * brandLogoScaleFactor,
-        brandLogo.height * brandLogoScaleFactor
-    );
-
-    // images in bubbles
-    image(
-        bubble1Image,
-        circleX,
-        HEIGHT / 2 - bubbleHeight - bubbleRadius / 2,
-        bubble1Image.width * bubble1ScaleFactor,
-        bubble1Image.height * bubble1ScaleFactor
-    );
-
-    image(
-        bubble2Image,
-        WIDTH - circleX,
-        HEIGHT / 2 + bubbleHeight + bubbleRadius / 2,
-        bubble2Image.width * bubble2ScaleFactor,
-        bubble2Image.height * bubble2ScaleFactor
-    );
-    pop();
-    // STC logo
-    image(
-        stcLogo,
-        WIDTH - topMarginX - stcLogo.width * stcScaleFactor,
-        topMarginY - stcLogo.height * stcScaleFactor + stcIconYOffset,
-        stcLogo.width * stcScaleFactor,
-        stcLogo.height * stcScaleFactor
-    );
-
-    // past/present/future
-    push();
-    fill(primaryColor);
-    stroke(primaryColor);
-    textFont(secondaryTextFont);
-    textSize(secondaryTextSize);
-    if (type !== "PAST") {
-        text(typeText, topMarginX, topMarginY);
-        image(
-            typeImage,
-            topMarginX + textWidth(typeText) + iconXOffset,
-            topMarginY - secondaryTextSize + iconYOffset,
-            88 * typeIconScaleFactor,
-            53 * typeIconScaleFactor
-        );
-        noFill();
-    } else {
-        image(
-            typeImage,
-            topMarginX,
-            topMarginY - secondaryTextSize + iconYOffset,
-            88 * typeIconScaleFactor,
-            53 * typeIconScaleFactor
-        );
-        text(typeText, typeImage.width, topMarginY);
-    }
-    pop();
-
-    strokeWeight(2);
-    stroke(primaryColor);
-    fill(primaryColor);
-
-    // Main line
-    line(lineStartGap, HEIGHT / 2, WIDTH - lineEndGap, HEIGHT / 2);
-
-    //Points marked on the line
-    circle(circleX, HEIGHT / 2, circleRadius);
-    circle(WIDTH - circleX, HEIGHT / 2, circleRadius);
-    noFill();
-
-    // Bubble circles
-    circle(circleX, HEIGHT / 2 - bubbleHeight - bubbleRadius / 2, bubbleRadius);
-    circle(
-        WIDTH - circleX,
-        HEIGHT / 2 + bubbleHeight + bubbleRadius / 2,
-        bubbleRadius
-    );
-
-    // Dotted Circles around points on the line
-    push();
-    drawingContext.setLineDash([dashSize, spaceSize]);
-    circle(circleX, HEIGHT / 2, circleRadius + dottedCircleOffsetRadius);
-    circle(
-        WIDTH - circleX,
-        HEIGHT / 2,
-        circleRadius + dottedCircleOffsetRadius
-    );
-    pop();
-    strokeWeight(0.35);
-
-    // lines connecting middle line to bubbles
-    line(circleX, HEIGHT / 2, circleX, HEIGHT / 2 - bubbleHeight);
-    line(
-        WIDTH - circleX,
-        HEIGHT / 2,
-        WIDTH - circleX,
-        HEIGHT / 2 + bubbleHeight
-    );
-
-    // text
-    push();
-    strokeWeight(0.1);
-    fill(secondaryColor);
-    stroke(secondaryColor);
-    textSize(primaryTextSize);
-    textFont(primaryTextFont);
-    textAlign(LEFT, CENTER);
-    let textBoxHeight = textHeight(text1, textBoxWidth);
-    text(
-        text1,
-        circleX + bubbleRadius / 2 + bubbleTextGap,
-        HEIGHT / 2 -
-            bubbleHeight -
-            bubbleRadius / 2 -
-            textBoxHeight / 2 -
-            textLeading() / 4,
-        textBoxWidth
-    );
-    textAlign(RIGHT, CENTER);
-    textBoxHeight = textHeight(text2, textBoxWidth);
-    // textLeading(0);
-    text(
-        text2,
-        WIDTH - circleX - bubbleRadius / 2 - textBoxWidth - bubbleTextGap,
-        HEIGHT / 2 +
-            bubbleHeight +
-            bubbleRadius / 2 -
-            textBoxHeight / 2 -
-            textLeading() / 4,
-        textBoxWidth
-    );
-    pop();
 }
