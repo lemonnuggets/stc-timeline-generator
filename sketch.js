@@ -13,7 +13,9 @@ let canvas;
 let primaryTextFont;
 let secondaryTextFont;
 
-var showBackgroundImage;
+var showBackgroundImage = false;
+var type = ["FUTURE", "PAST"];
+let currentType = "FUTURE";
 
 var backgroundColor;
 var primaryColor;
@@ -130,9 +132,7 @@ function colorImage(image, hex, alpha = 255) {
     }
     image.updatePixels();
 }
-function setDefaults(notFirst) {
-    showBackgroundImage = false;
-
+function setDefaults(notFirst = false, redraw = true) {
     backgroundColor = "#17213A";
     primaryColor = "#0ECC7C";
     secondaryColor = "#ffffff";
@@ -143,11 +143,19 @@ function setDefaults(notFirst) {
 
     lineStartGapMin = 0;
     lineStartGapMax = WIDTH / 8;
-    lineStartGap = 0;
+    if (type === "PAST") {
+        lineStartGap = 50;
+    } else {
+        lineStartGap = 0;
+    }
 
     lineEndGapMin = 0;
     lineEndGapMax = WIDTH / 8;
-    lineEndGap = 0;
+    if (type === "FUTURE") {
+        lineEndGap = 50;
+    } else {
+        lineEndGap = 0;
+    }
 
     circleXMin = 0;
     circleXMax = WIDTH / 2;
@@ -256,7 +264,9 @@ function setDefaults(notFirst) {
             stcIconYOffset,
             scaleFactor,
         });
-        draw();
+        if (redraw) {
+            draw();
+        }
     }
 }
 function preload() {
@@ -281,6 +291,7 @@ function setup() {
     setDefaults();
     gui = createGui("STC Timeline Generator");
     gui.addGlobals(
+        "type",
         "showBackgroundImage",
         "backgroundColor",
         "primaryColor",
@@ -314,9 +325,9 @@ function setup() {
         saveCanvas();
     });
     document.querySelector("#reset-button").addEventListener("click", () => {
-        setDefaults(true);
+        setDefaults((notFirst = true));
     });
-    setDefaults(true);
+    setDefaults((notFirst = true));
 
     noLoop();
 }
@@ -346,13 +357,32 @@ function draw() {
     } else {
         background(backgroundColor);
     }
+    let typeText, typeImage;
+    switch (type) {
+        case "FUTURE":
+            typeText = "FUTURE";
+            typeImage = futureImage;
+            if (currentType != typeText) {
+                setDefaults((notFirst = true), (redraw = false));
+                currentType = typeText;
+            }
+            break;
+        case "PAST":
+            typeText = "PAST";
+            typeImage = pastImage;
+            if (currentType != typeText) {
+                setDefaults((notFirst = true), (redraw = false));
+                currentType = typeText;
+            }
+            break;
+    }
     push();
 
     colorImage(bubble1Image, secondaryColor);
     colorImage(bubble2Image, secondaryColor);
     colorImage(stcLogo, secondaryColor);
 
-    colorImage(futureImage, primaryColor);
+    colorImage(typeImage, primaryColor);
     colorImage(brandLogo, primaryColor, brandLogoAlpha);
 
     imageMode(CENTER);
@@ -398,15 +428,26 @@ function draw() {
     stroke(primaryColor);
     textFont(secondaryTextFont);
     textSize(secondaryTextSize);
-    text("FUTURE", topMarginX, topMarginY);
-    image(
-        futureImage,
-        topMarginX + textWidth("FUTURE") + iconXOffset,
-        topMarginY - secondaryTextSize + iconYOffset,
-        88 * scaleFactor,
-        53 * scaleFactor
-    );
-    noFill();
+    if (type !== "PAST") {
+        text(typeText, topMarginX, topMarginY);
+        image(
+            typeImage,
+            topMarginX + textWidth(typeText) + iconXOffset,
+            topMarginY - secondaryTextSize + iconYOffset,
+            88 * scaleFactor,
+            53 * scaleFactor
+        );
+        noFill();
+    } else {
+        image(
+            typeImage,
+            topMarginX,
+            topMarginY - secondaryTextSize + iconYOffset,
+            88 * scaleFactor,
+            53 * scaleFactor
+        );
+        text(typeText, typeImage.width, topMarginY);
+    }
     pop();
 
     strokeWeight(2);
