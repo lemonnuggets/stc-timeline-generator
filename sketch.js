@@ -19,6 +19,10 @@ var backgroundColor;
 var primaryColor;
 var secondaryColor;
 
+var brandLogoAlpha;
+var brandLogoAlphaMin;
+var brandLogoAlphaMax;
+
 var lineStartGap;
 var lineStartGapMin;
 var lineStartGapMax;
@@ -96,10 +100,6 @@ var scaleFactorMax;
 var scaleFactorStep;
 
 var gui;
-// const guiOpts = {
-//     title: "STC Timeline Generator",
-//     theme: "yorha",
-// };
 function writeColor(image, x, y, red, green, blue, alpha) {
     let index = (x + y * image.width) * 4;
     image.pixels[index] = red;
@@ -119,14 +119,12 @@ function hexToRgb(hex) {
     return [r, g, b];
 }
 function colorImage(image, hex, alpha = 255) {
-    [red, green, blue] = hexToRgb(hex);
+    let [red, green, blue] = hexToRgb(hex);
     image.loadPixels();
     for (let y = 0; y < image.height; y++) {
         for (let x = 0; x < image.width; x++) {
             if (image.get(x, y)[3] > 0) {
                 writeColor(image, x, y, red, green, blue, alpha);
-            } else {
-                // writeColor(image, x, y, 0, 255, 0, 255);
             }
         }
     }
@@ -138,6 +136,10 @@ function setDefaults(notFirst) {
     backgroundColor = "#17213A";
     primaryColor = "#0ECC7C";
     secondaryColor = "#ffffff";
+
+    brandLogoAlpha = 55;
+    brandLogoAlphaMin = 0;
+    brandLogoAlphaMax = 255;
 
     lineStartGapMin = 0;
     lineStartGapMax = WIDTH / 8;
@@ -231,6 +233,7 @@ function setDefaults(notFirst) {
             backgroundColor,
             primaryColor,
             secondaryColor,
+            brandLogoAlpha,
             lineStartGap,
             lineEndGap,
             circleX,
@@ -282,6 +285,7 @@ function setup() {
         "backgroundColor",
         "primaryColor",
         "secondaryColor",
+        "brandLogoAlpha",
         "text1",
         "text2",
         "lineStartGap",
@@ -349,7 +353,7 @@ function draw() {
     colorImage(stcLogo, secondaryColor);
 
     colorImage(futureImage, primaryColor);
-    colorImage(brandLogo, primaryColor, 128);
+    colorImage(brandLogo, primaryColor, brandLogoAlpha);
 
     imageMode(CENTER);
 
@@ -390,8 +394,6 @@ function draw() {
 
     // past/present/future
     push();
-    // strokeWeight(0.1);
-    // document.querySelector("canvas").style.letterSpacing = "300px";
     fill(primaryColor);
     stroke(primaryColor);
     textFont(secondaryTextFont);
