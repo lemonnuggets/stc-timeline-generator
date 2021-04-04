@@ -101,6 +101,30 @@ var scaleFactorMin;
 var scaleFactorMax;
 var scaleFactorStep;
 
+var stcScaleFactor;
+var stcScaleFactorMin;
+var stcScaleFactorMax;
+var stcScaleFactorStep;
+
+var bubble1ScaleFactor;
+var bubble1ScaleFactorMin;
+var bubble1ScaleFactorMax;
+var bubble1ScaleFactorStep;
+
+var bubble2ScaleFactor;
+var bubble2ScaleFactorMin;
+var bubble2ScaleFactorMax;
+var bubble2ScaleFactorStep;
+
+var brandLogoScaleFactor;
+var brandLogoScaleFactorMin;
+var brandLogoScaleFactorMax;
+var brandLogoScaleFactorStep;
+
+var typeIconScaleFactor;
+var typeIconScaleFactorMin;
+var typeIconScaleFactorMax;
+var typeIconScaleFactorStep;
 var gui;
 var gui2;
 function writeColor(image, x, y, red, green, blue, alpha) {
@@ -234,6 +258,30 @@ function setDefaults(notFirst = false, toBeRedrawn = true) {
     scaleFactorMax = 5;
     scaleFactorStep = 0.01;
 
+    stcScaleFactor = 0.55;
+    stcScaleFactorMin = 0.1;
+    stcScaleFactorMax = 5;
+    stcScaleFactorStep = 0.01;
+
+    bubble1ScaleFactor = 0.55;
+    bubble1ScaleFactorMin = 0.1;
+    bubble1ScaleFactorMax = 5;
+    bubble1ScaleFactorStep = 0.01;
+
+    bubble2ScaleFactor = 0.55;
+    bubble2ScaleFactorMin = 0.1;
+    bubble2ScaleFactorMax = 5;
+    bubble2ScaleFactorStep = 0.01;
+
+    brandLogoScaleFactor = 0.55;
+    brandLogoScaleFactorMin = 0.1;
+    brandLogoScaleFactorMax = 5;
+    brandLogoScaleFactorStep = 0.01;
+
+    typeIconScaleFactor = 0.55;
+    typeIconScaleFactorMin = 0.1;
+    typeIconScaleFactorMax = 5;
+    typeIconScaleFactorStep = 0.01;
     if (notFirst) {
         // No way to set values programmatically in p5.gui
         // so instead directly using quicksettings.js setValuesFromJSON()
@@ -259,6 +307,11 @@ function setDefaults(notFirst = false, toBeRedrawn = true) {
             iconYOffset,
             stcIconYOffset,
             scaleFactor,
+            typeIconScaleFactor,
+            brandLogoScaleFactor,
+            bubble2ScaleFactor,
+            bubble1ScaleFactor,
+            stcScaleFactor,
         });
         if (toBeRedrawn) {
             backgroundColor = "#17213A";
@@ -319,6 +372,11 @@ function setup() {
     );
     gui2 = createGui("Hopefully nothing to be touched");
     gui2.addGlobals(
+        "typeIconScaleFactor",
+        "brandLogoScaleFactor",
+        "bubble2ScaleFactor",
+        "bubble1ScaleFactor",
+        "stcScaleFactor",
         "lineStartGap",
         "lineEndGap",
         "circleX",
@@ -413,8 +471,8 @@ function draw() {
         brandLogo,
         WIDTH / 2,
         HEIGHT / 2,
-        brandLogo.width * scaleFactor,
-        brandLogo.height * scaleFactor
+        brandLogo.width * brandLogoScaleFactor,
+        brandLogo.height * brandLogoScaleFactor
     );
 
     // images in bubbles
@@ -422,25 +480,25 @@ function draw() {
         bubble1Image,
         circleX,
         HEIGHT / 2 - bubbleHeight - bubbleRadius / 2,
-        bubble1Image.width * scaleFactor,
-        bubble1Image.height * scaleFactor
+        bubble1Image.width * bubble1ScaleFactor,
+        bubble1Image.height * bubble1ScaleFactor
     );
 
     image(
         bubble2Image,
         WIDTH - circleX,
         HEIGHT / 2 + bubbleHeight + bubbleRadius / 2,
-        bubble2Image.width * scaleFactor,
-        bubble2Image.height * scaleFactor
+        bubble2Image.width * bubble2ScaleFactor,
+        bubble2Image.height * bubble2ScaleFactor
     );
     pop();
     // STC logo
     image(
         stcLogo,
-        WIDTH - topMarginX - stcLogo.width * scaleFactor,
-        topMarginY - stcLogo.height * scaleFactor + stcIconYOffset,
-        stcLogo.width * scaleFactor,
-        stcLogo.height * scaleFactor
+        WIDTH - topMarginX - stcLogo.width * stcScaleFactor,
+        topMarginY - stcLogo.height * stcScaleFactor + stcIconYOffset,
+        stcLogo.width * stcScaleFactor,
+        stcLogo.height * stcScaleFactor
     );
 
     // past/present/future
@@ -455,8 +513,8 @@ function draw() {
             typeImage,
             topMarginX + textWidth(typeText) + iconXOffset,
             topMarginY - secondaryTextSize + iconYOffset,
-            88 * scaleFactor,
-            53 * scaleFactor
+            88 * typeIconScaleFactor,
+            53 * typeIconScaleFactor
         );
         noFill();
     } else {
@@ -464,8 +522,8 @@ function draw() {
             typeImage,
             topMarginX,
             topMarginY - secondaryTextSize + iconYOffset,
-            88 * scaleFactor,
-            53 * scaleFactor
+            88 * typeIconScaleFactor,
+            53 * typeIconScaleFactor
         );
         text(typeText, typeImage.width, topMarginY);
     }
