@@ -5,6 +5,7 @@ let presentImage;
 let stcLogo;
 let bubble1Image;
 let bubble2Image;
+let brandLogo;
 
 let WIDTH = 796;
 let HEIGHT = 796;
@@ -74,9 +75,9 @@ var textBoxWidth;
 var textBoxWidthMin;
 var textBoxWidthMax;
 
-var startColOffset;
-var startColOffsetMin;
-var startColOffset;
+var bubbleTextGap;
+var bubbleTextGapMin;
+var bubbleTextGap;
 var iconXOffset;
 var iconXOffsetMin;
 var iconXOffsetMax;
@@ -99,6 +100,38 @@ var gui;
 //     title: "STC Timeline Generator",
 //     theme: "yorha",
 // };
+function writeColor(image, x, y, red, green, blue, alpha) {
+    let index = (x + y * image.width) * 4;
+    image.pixels[index] = red;
+    image.pixels[index + 1] = green;
+    image.pixels[index + 2] = blue;
+    image.pixels[index + 3] = alpha;
+}
+function hexToRgb(hex) {
+    hex = hex.replace("#", "");
+
+    var bigint = parseInt(hex, 16);
+
+    var r = (bigint >> 16) & 255;
+    var g = (bigint >> 8) & 255;
+    var b = bigint & 255;
+
+    return [r, g, b];
+}
+function colorImage(image, hex, alpha = 255) {
+    [red, green, blue] = hexToRgb(hex);
+    image.loadPixels();
+    for (let y = 0; y < image.height; y++) {
+        for (let x = 0; x < image.width; x++) {
+            if (image.get(x, y)[3] > 0) {
+                writeColor(image, x, y, red, green, blue, alpha);
+            } else {
+                // writeColor(image, x, y, 0, 255, 0, 255);
+            }
+        }
+    }
+    image.updatePixels();
+}
 function setDefaults(notFirst) {
     showBackgroundImage = false;
 
@@ -154,9 +187,9 @@ function setDefaults(notFirst) {
     textBoxWidthMin = 300;
     textBoxWidthMax = 600;
 
-    startColOffset = 17;
-    startColOffsetMin = -30;
-    startColOffsetMax = 30;
+    bubbleTextGap = 17;
+    bubbleTextGapMin = -30;
+    bubbleTextGapMax = 30;
 
     secondaryTextSize = 31;
     secondaryTextSizeMin = 20;
@@ -214,7 +247,7 @@ function setDefaults(notFirst) {
             topMarginX,
             topMarginY,
             textBoxWidth,
-            startColOffset,
+            bubbleTextGap,
             iconXOffset,
             iconYOffset,
             stcIconYOffset,
@@ -242,7 +275,6 @@ function setup() {
     // HEIGHT = backgroundImage.height;
     WIDTH = 600;
     HEIGHT = 600;
-
     setDefaults();
     gui = createGui("STC Timeline Generator");
     gui.addGlobals(
@@ -265,7 +297,7 @@ function setup() {
         "secondaryTextSize",
         "topMarginX",
         "topMarginY",
-        "startColOffset",
+        "bubbleTextGap",
         "textBoxWidth",
         "iconXOffset",
         "iconYOffset",
@@ -311,6 +343,13 @@ function draw() {
         background(backgroundColor);
     }
     push();
+
+    colorImage(bubble1Image, secondaryColor);
+    colorImage(bubble2Image, secondaryColor);
+    colorImage(stcLogo, secondaryColor);
+
+    colorImage(futureImage, primaryColor);
+    colorImage(brandLogo, primaryColor, 128);
 
     imageMode(CENTER);
 
@@ -420,7 +459,7 @@ function draw() {
     let textBoxHeight = textHeight(text1, textBoxWidth);
     text(
         text1,
-        circleX + bubbleRadius / 2 + startColOffset,
+        circleX + bubbleRadius / 2 + bubbleTextGap,
         HEIGHT / 2 -
             bubbleHeight -
             bubbleRadius / 2 -
@@ -433,7 +472,7 @@ function draw() {
     // textLeading(0);
     text(
         text2,
-        WIDTH - circleX - bubbleRadius / 2 - textBoxWidth - startColOffset,
+        WIDTH - circleX - bubbleRadius / 2 - textBoxWidth - bubbleTextGap,
         HEIGHT / 2 +
             bubbleHeight +
             bubbleRadius / 2 -
