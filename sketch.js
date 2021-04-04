@@ -3,6 +3,8 @@ let futureImage;
 let pastImage;
 let presentImage;
 let stcLogo;
+let bubble1Image;
+let bubble2Image;
 
 let WIDTH = 796;
 let HEIGHT = 796;
@@ -61,12 +63,12 @@ var secondaryTextSizeMin;
 var secondaryTextSizeMax;
 var secondaryTextSizeStep;
 
-var secondaryTextX;
-var secondaryTextXMin;
-var secondaryTextXMax;
-var secondaryTextY;
-var secondaryTextYMin;
-var secondaryTextYMax;
+var topMarginX;
+var topMarginXMin;
+var topMarginXMax;
+var topMarginY;
+var topMarginYMin;
+var topMarginYMax;
 
 var textBoxWidth;
 var textBoxWidthMin;
@@ -161,13 +163,13 @@ function setDefaults(notFirst) {
     secondaryTextSizeMax = 40;
     secondaryTextSizeStep = 0.1;
 
-    secondaryTextX = 24;
-    secondaryTextXMin = 0;
-    secondaryTextXMax = 100;
+    topMarginX = 24;
+    topMarginXMin = 0;
+    topMarginXMax = 100;
 
-    secondaryTextY = 54;
-    secondaryTextYMin = 0;
-    secondaryTextYMax = 100;
+    topMarginY = 54;
+    topMarginYMin = 0;
+    topMarginYMax = 100;
 
     iconXOffset = 12;
     iconXOffsetMin = 0;
@@ -209,8 +211,8 @@ function setDefaults(notFirst) {
             text2,
             primaryTextSize,
             secondaryTextSize,
-            secondaryTextX,
-            secondaryTextY,
+            topMarginX,
+            topMarginY,
             textBoxWidth,
             startColOffset,
             iconXOffset,
@@ -231,6 +233,9 @@ function preload() {
     // presentImage = loadImage("./assets/present.svg");
     pastImage = loadImage("./assets/past.svg");
     backgroundImage = loadImage("assets/sample.jpg");
+
+    bubble1Image = loadImage("assets/bubble1.svg");
+    bubble2Image = loadImage("assets/bubble2.svg");
 }
 function setup() {
     // WIDTH = backgroundImage.width;
@@ -258,8 +263,8 @@ function setup() {
         "spaceSize",
         "primaryTextSize",
         "secondaryTextSize",
-        "secondaryTextX",
-        "secondaryTextY",
+        "topMarginX",
+        "topMarginY",
         "startColOffset",
         "textBoxWidth",
         "iconXOffset",
@@ -305,21 +310,43 @@ function draw() {
     } else {
         background(backgroundColor);
     }
+    push();
+
+    imageMode(CENTER);
 
     // watermark
     image(
         brandLogo,
-        WIDTH / 2 - brandLogo.width / 2,
-        HEIGHT / 2 - brandLogo.height / 2
+        WIDTH / 2,
+        HEIGHT / 2,
+        brandLogo.width * scaleFactor,
+        brandLogo.height * scaleFactor
     );
 
+    // images in bubbles
+    image(
+        bubble1Image,
+        circleX,
+        HEIGHT / 2 - bubbleHeight - bubbleRadius / 2,
+        bubble1Image.width * scaleFactor,
+        bubble1Image.height * scaleFactor
+    );
+
+    image(
+        bubble2Image,
+        WIDTH - circleX,
+        HEIGHT / 2 + bubbleHeight + bubbleRadius / 2,
+        bubble2Image.width * scaleFactor,
+        bubble2Image.height * scaleFactor
+    );
+    pop();
     // STC logo
     image(
         stcLogo,
-        WIDTH - secondaryTextX - stcLogo.width * scaleFactor,
-        secondaryTextY - stcLogo.height * scaleFactor + stcIconYOffset,
-        216.26 * scaleFactor,
-        86 * scaleFactor
+        WIDTH - topMarginX - stcLogo.width * scaleFactor,
+        topMarginY - stcLogo.height * scaleFactor + stcIconYOffset,
+        stcLogo.width * scaleFactor,
+        stcLogo.height * scaleFactor
     );
 
     // past/present/future
@@ -330,11 +357,11 @@ function draw() {
     stroke(primaryColor);
     textFont(secondaryTextFont);
     textSize(secondaryTextSize);
-    text("FUTURE", secondaryTextX, secondaryTextY);
+    text("FUTURE", topMarginX, topMarginY);
     image(
         futureImage,
-        secondaryTextX + textWidth("FUTURE") + iconXOffset,
-        secondaryTextY - secondaryTextSize + iconYOffset,
+        topMarginX + textWidth("FUTURE") + iconXOffset,
+        topMarginY - secondaryTextSize + iconYOffset,
         88 * scaleFactor,
         53 * scaleFactor
     );
