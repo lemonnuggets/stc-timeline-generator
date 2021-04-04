@@ -133,14 +133,20 @@ function colorImage(image, hex, alpha = 255) {
     }
     image.updatePixels();
 }
-function setDefaults(notFirst = false, redraw = true) {
-    backgroundColor = "#17213A";
-    primaryColor = "#0ECC7C";
-    secondaryColor = "#ffffff";
+function setDefaults(notFirst = false, toBeRedrawn = true) {
+    if (!notFirst) {
+        backgroundColor = "#17213A";
+        primaryColor = "#0ECC7C";
+        secondaryColor = "#ffffff";
 
-    brandLogoAlpha = 55;
-    brandLogoAlphaMin = 0;
-    brandLogoAlphaMax = 255;
+        brandLogoAlpha = 55;
+        brandLogoAlphaMin = 0;
+        brandLogoAlphaMax = 255;
+        text1 =
+            "Razer has planned to release a cutting-edge gaming chair built with carbon fibre and RGB lighting, Project Brooklyn Chair, in 2022-23.";
+        text2 =
+            "At CES 2021, Razer unveiled a conceptual design for a transparent plastic face mask called Project Hazel to improve social interaction during this pandemic.";
+    }
 
     lineStartGapMin = 0;
     lineStartGapMax = WIDTH / 8;
@@ -188,10 +194,6 @@ function setDefaults(notFirst = false, redraw = true) {
     spaceSizeStep = 0.1;
     spaceSize = 6.9;
 
-    text1 =
-        "Razer has planned to release a cutting-edge gaming chair built with carbon fibre and RGB lighting, Project Brooklyn Chair, in 2022-23.";
-    text2 =
-        "At CES 2021, Razer unveiled a conceptual design for a transparent plastic face mask called Project Hazel to improve social interaction during this pandemic.";
     primaryTextSize = 21;
 
     textBoxWidth = 438;
@@ -236,16 +238,7 @@ function setDefaults(notFirst = false, redraw = true) {
         // No way to set values programmatically in p5.gui
         // so instead directly using quicksettings.js setValuesFromJSON()
         // method.
-        // Since manually setting values, we should redraw the canvas.
-        gui.prototype.setValuesFromJSON({
-            showBackgroundImage,
-            backgroundColor,
-            primaryColor,
-            secondaryColor,
-            brandLogoAlpha,
-            text1,
-            text2,
-        });
+        // Since manually setting values, we should toBeRedrawn the canvas.
         gui2.prototype.setValuesFromJSON({
             lineStartGap,
             lineEndGap,
@@ -267,7 +260,28 @@ function setDefaults(notFirst = false, redraw = true) {
             stcIconYOffset,
             scaleFactor,
         });
-        if (redraw) {
+        if (toBeRedrawn) {
+            backgroundColor = "#17213A";
+            primaryColor = "#0ECC7C";
+            secondaryColor = "#ffffff";
+
+            brandLogoAlpha = 55;
+            brandLogoAlphaMin = 0;
+            brandLogoAlphaMax = 255;
+            text1 =
+                "Razer has planned to release a cutting-edge gaming chair built with carbon fibre and RGB lighting, Project Brooklyn Chair, in 2022-23.";
+            text2 =
+                "At CES 2021, Razer unveiled a conceptual design for a transparent plastic face mask called Project Hazel to improve social interaction during this pandemic.";
+
+            gui.prototype.setValuesFromJSON({
+                showBackgroundImage,
+                backgroundColor,
+                primaryColor,
+                secondaryColor,
+                brandLogoAlpha,
+                text1,
+                text2,
+            });
             draw();
         }
     }
@@ -325,7 +339,7 @@ function setup() {
         "stcIconYOffset",
         "scaleFactor"
     );
-    gui2.setPosition(windowWidth - 250, 50);
+    gui2.setPosition(windowWidth - 250, 20);
 
     canvas = createCanvas(WIDTH, HEIGHT);
     document.querySelector("#save-button").addEventListener("click", () => {
@@ -370,7 +384,7 @@ function draw() {
             typeText = "FUTURE";
             typeImage = futureImage;
             if (currentType != typeText) {
-                setDefaults((notFirst = true), (redraw = false));
+                setDefaults((notFirst = true), (toBeRedrawn = false));
                 currentType = typeText;
             }
             break;
@@ -378,7 +392,7 @@ function draw() {
             typeText = "PAST";
             typeImage = pastImage;
             if (currentType != typeText) {
-                setDefaults((notFirst = true), (redraw = false));
+                setDefaults((notFirst = true), (toBeRedrawn = false));
                 currentType = typeText;
             }
             break;
