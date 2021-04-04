@@ -24,6 +24,16 @@
                 padding: 0;
                 box-sizing: border-box;
             }
+            .settings {
+                display: flex;
+                flex-direction: column;
+            }
+            input {
+                padding-bottom: 20px;
+            }
+            .buttons {
+                padding-bottom: 50px;
+            }
             .p5Canvas {
                 margin: 10px;
                 box-sizing: border-box;
@@ -37,6 +47,17 @@
                 <button id="save-button">Save</button>
                 <button id="reset-button">Reset Defaults</button>
             </div>
+            <label for="bubble1">Bubble1</label>
+            <input type="file" accept="image/*" name="bubble1" id="bubble1" />
+            <label for="bubble2">Bubble2</label>
+            <input type="file" accept="image/*" name="bubble2" id="bubble2" />
+            <label for="brandLogo">Brand Logo</label>
+            <input
+                type="file"
+                accept="image/*"
+                name="brandLogo"
+                id="brandLogo"
+            />
         </div>
     </body>
 </html>

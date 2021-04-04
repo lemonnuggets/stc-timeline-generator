@@ -1,22 +1,18 @@
-// TODO: Add files as inputs
-let backgroundImage;
-let futureImage;
-let pastImage;
-let presentImage;
-let stcLogo;
-let bubble1Image;
-let bubble2Image;
-let brandLogo;
+// TODO: autosize files
+// TODO: better scaling factor for images
+var bubble1Image;
+var bubble2Image;
+var brandLogo;
 
-let WIDTH = 796;
-let HEIGHT = 796;
-let canvas;
-let primaryTextFont;
-let secondaryTextFont;
+var WIDTH = 796;
+var HEIGHT = 796;
+var canvas;
+var primaryTextFont;
+var secondaryTextFont;
 
 var showBackgroundImage = false;
 var type = ["FUTURE", "PAST"];
-let currentType = "FUTURE";
+var currentType = "FUTURE";
 
 var backgroundColor;
 var primaryColor;
@@ -148,11 +144,18 @@ function hexToRgb(hex) {
     return [r, g, b];
 }
 function colorImage(image, hex, alpha = 255) {
+    console.log("in", image);
     let [red, green, blue] = hexToRgb(hex);
     image.loadPixels();
+    let flag = false;
+    console.log("loaded", hex, red, green, blue);
     for (let y = 0; y < image.height; y++) {
         for (let x = 0; x < image.width; x++) {
             if (image.get(x, y)[3] > 0) {
+                if (!flag) {
+                    flag = true;
+                    console.log("changed");
+                }
                 writeColor(image, x, y, red, green, blue, alpha);
             }
         }
@@ -180,11 +183,6 @@ function textHeight(text, maxWidth) {
     return h;
 }
 
-function linkToInput(variable, inputID) {
-    const input = document.querySelector(inputID);
-    input.onchange = () => {};
-}
-
 function preload() {
     primaryTextFont = loadFont("assets/fonts/Montserrat/Medium.ttf");
     secondaryTextFont = loadFont("assets/fonts/Cera Pro/Bold.otf");
@@ -203,6 +201,27 @@ function preload() {
 function setup() {
     // WIDTH = backgroundImage.width;
     // HEIGHT = backgroundImage.height;
+    function linkToInput(variable, inputID) {
+        const input = document.querySelector(inputID);
+        input.onchange = (e) => {
+            console.log(e, input.files, window[variable]);
+            if (input.files.length > 0) {
+                const image = loadImage(
+                    URL.createObjectURL(input.files[0]),
+                    () => {
+                        console.log(image);
+                        window[variable] = image;
+                        draw();
+                    }
+                );
+                console.log(image);
+            }
+        };
+    }
+
+    linkToInput("bubble1Image", "#bubble1");
+    linkToInput("bubble2Image", "#bubble2");
+    linkToInput("brandLogo", "#brandLogo");
     WIDTH = 600;
     HEIGHT = 600;
     setDefaults();
@@ -530,32 +549,32 @@ function setDefaults(notFirst = false, toBeRedrawn = true) {
     stcIconYOffsetMax = 50;
 
     scaleFactor = 0.55;
-    scaleFactorMin = 0.1;
+    scaleFactorMin = 0.01;
     scaleFactorMax = 5;
     scaleFactorStep = 0.01;
 
     stcScaleFactor = 0.55;
-    stcScaleFactorMin = 0.1;
+    stcScaleFactorMin = 0.01;
     stcScaleFactorMax = 5;
     stcScaleFactorStep = 0.01;
 
     bubble1ScaleFactor = 0.55;
-    bubble1ScaleFactorMin = 0.1;
+    bubble1ScaleFactorMin = 0.01;
     bubble1ScaleFactorMax = 5;
     bubble1ScaleFactorStep = 0.01;
 
     bubble2ScaleFactor = 0.55;
-    bubble2ScaleFactorMin = 0.1;
+    bubble2ScaleFactorMin = 0.01;
     bubble2ScaleFactorMax = 5;
     bubble2ScaleFactorStep = 0.01;
 
     brandLogoScaleFactor = 0.55;
-    brandLogoScaleFactorMin = 0.1;
+    brandLogoScaleFactorMin = 0.01;
     brandLogoScaleFactorMax = 5;
     brandLogoScaleFactorStep = 0.01;
 
     typeIconScaleFactor = 0.55;
-    typeIconScaleFactorMin = 0.1;
+    typeIconScaleFactorMin = 0.01;
     typeIconScaleFactorMax = 5;
     typeIconScaleFactorStep = 0.01;
     if (notFirst) {
