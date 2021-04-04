@@ -102,6 +102,7 @@ var scaleFactorMax;
 var scaleFactorStep;
 
 var gui;
+var gui2;
 function writeColor(image, x, y, red, green, blue, alpha) {
     let index = (x + y * image.width) * 4;
     image.pixels[index] = red;
@@ -242,6 +243,10 @@ function setDefaults(notFirst = false, redraw = true) {
             primaryColor,
             secondaryColor,
             brandLogoAlpha,
+            text1,
+            text2,
+        });
+        gui2.prototype.setValuesFromJSON({
             lineStartGap,
             lineEndGap,
             circleX,
@@ -251,8 +256,6 @@ function setDefaults(notFirst = false, redraw = true) {
             bubbleRadius,
             dashSize,
             spaceSize,
-            text1,
-            text2,
             primaryTextSize,
             secondaryTextSize,
             topMarginX,
@@ -298,7 +301,10 @@ function setup() {
         "secondaryColor",
         "brandLogoAlpha",
         "text1",
-        "text2",
+        "text2"
+    );
+    gui2 = createGui("Hopefully nothing to be touched");
+    gui2.addGlobals(
         "lineStartGap",
         "lineEndGap",
         "circleX",
@@ -319,6 +325,7 @@ function setup() {
         "stcIconYOffset",
         "scaleFactor"
     );
+    gui2.setPosition(windowWidth - 250, 50);
 
     canvas = createCanvas(WIDTH, HEIGHT);
     document.querySelector("#save-button").addEventListener("click", () => {
